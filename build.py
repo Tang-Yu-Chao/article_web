@@ -12,10 +12,15 @@ def build():
         for f in sorted(os.listdir(path)):
             if f.endswith(".md"):
                 with open(os.path.join(path, f), 'r', encoding='utf-8') as file:
-                    content = file.read().strip()
-                    #按空行(不是换行，是2个段落间空一行)拆分文章 
-                    paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
-                    qs.extend(paragraphs) 
+                    article_content = file.read().strip() # 读取整个文件的全部内容，并去掉首尾多余的空白字符
+                    if article_content:
+                        qs.append(article_content)
+
+
+                    # content = file.read().strip()
+                    # #按空行(不是换行，是2个段落间空一行)拆分文章 
+                    # article_content = [content]
+                    # qs.extend(article_content)
     with open('data.json', 'w', encoding='utf-8') as f:
         json.dump(qs, f, ensure_ascii=False, indent=4)
 if __name__ == "__main__":
