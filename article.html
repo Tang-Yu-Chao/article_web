@@ -58,41 +58,41 @@
         </script>
     </div>
 
-<script>
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('slug');
-    if (!slug) {
-        document.body.innerHTML = '<h2>缺少文章标识</h2>';
-        throw new Error('No slug');
-    }
-
-    async function loadArticle() {
-        try {
-            const res = await fetch(`./articles/${slug}.json`);
-            const article = await res.json();
-            document.getElementById('article-title').innerText = article.title;
-            document.getElementById('article-content').innerText = article.content;
-
-            // 动态更新 Giscus 的 data-term 并重新加载
-            const giscusScript = document.querySelector('script[src*="giscus.app"]');
-            if (giscusScript) {
-                // 设置映射方式为 "specific"，term 为文章标题（确保唯一）
-                giscusScript.setAttribute('data-mapping', 'specific');
-                giscusScript.setAttribute('data-term', article.title);
-                giscusScript.setAttribute('data-strict', '1');
-
-                // 重新加载 Giscus 脚本
-                const newScript = document.createElement('script');
-                for (let attr of giscusScript.attributes) {
-                    newScript.setAttribute(attr.name, attr.value);
-                }
-                giscusScript.replaceWith(newScript);
-            }
-        } catch (e) {
-            document.getElementById('article-content').innerText = '加载文章失败: ' + e.message;
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        if (!slug) {
+            document.body.innerHTML = '<h2>缺少文章标识</h2>';
+            throw new Error('No slug');
         }
-    }
-    loadArticle();
-</script>
+
+        async function loadArticle() {
+            try {
+                const res = await fetch(`./articles/${slug}.json`);
+                const article = await res.json();
+                document.getElementById('article-title').innerText = article.title;
+                document.getElementById('article-content').innerText = article.content;
+
+                // 动态更新 Giscus 的 data-term 并重新加载
+                const giscusScript = document.querySelector('script[src*="giscus.app"]');
+                if (giscusScript) {
+                    // 设置映射方式为 "specific"，term 为文章标题（确保唯一）
+                    giscusScript.setAttribute('data-mapping', 'specific');
+                    giscusScript.setAttribute('data-term', article.title);
+                    giscusScript.setAttribute('data-strict', '1');
+
+                    // 重新加载 Giscus 脚本
+                    const newScript = document.createElement('script');
+                    for (let attr of giscusScript.attributes) {
+                        newScript.setAttribute(attr.name, attr.value);
+                    }
+                    giscusScript.replaceWith(newScript);
+                }
+            } catch (e) {
+                document.getElementById('article-content').innerText = '加载文章失败: ' + e.message;
+            }
+        }
+        loadArticle();
+    </script>
 </body>
 </html>
