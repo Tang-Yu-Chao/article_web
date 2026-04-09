@@ -5,17 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章详情</title>
     <style>
-        body { margin: 20px; background: #f2f2f7; font-family: -apple-system, sans-serif; }
+        body {
+            margin: 12px;
+            background: #f2f2f7;
+            font-family: -apple-system, sans-serif;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         #article-content {
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 16px;
             line-height: 1.8;
+            font-size: 16px;
             white-space: pre-wrap;
             word-break: break-word;
             margin-bottom: 30px;
         }
         .giscus { margin-top: 30px; }
+        @media (max-width: 480px) {
+            body {
+                margin: 8px;
+            }
+            #article-content {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 <body>
