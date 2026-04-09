@@ -1,47 +1,58 @@
-name: Deploy
+name: Deploy to GitHub Pages
+
 on:
   push:
     branches: [ main ]
-    paths: [ 'quotes/**', 'build.py' ]
+    paths:
+      - 'quotes/**'
+      - 'build.py'
+      - 'index.html'
+      - 'article.html'
+
 permissions:
   contents: write
   pages: write
   id-token: write
+
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # 解决你看到的那个警告
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # 构建任务：生成静态文件
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # 升级到 v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Run Build Script
         run: python build.py
 
-      - name: Commit and Push data.json
+      - name: Commit generated files
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # 检查文件是否存在，防止报错
-          if [ -f data.json ]; then
-            git add data.json
-            git commit -m "自动更新数据文件" || echo "内容无变化"
-            git push
-          else
-            echo "错误：data.json 未生成，请检查 build.py"
-            exit 1
-          fi
+          git add articles.json articles/   # 注意：现在生成的是 articles.json 和 articles/ 文件夹
+          git commit -m "自动生成文章数据" || echo "内容无变化"
+          git push
 
-      - name: Upload Pages Artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '.'   # 根目录包含 index.html、article.html、articles.json 等
 
+  # 部署任务：部署到 GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
