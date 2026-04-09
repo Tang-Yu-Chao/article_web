@@ -3,110 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>能量站</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>我的文章站</title>
     <style>
-        body { 
-            margin: 0; background: #f2f2f7; 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-            height: 100vh; display: flex; flex-direction: column; 
-            align-items: center; overflow: hidden; 
+        body { margin: 20px; background: #f2f2f7; font-family: -apple-system, sans-serif; }
+        h1 { text-align: center; }
+        #article-list { list-style: none; padding: 0; }
+        .article-item {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
-        #box { 
-            background: white; 
-            margin-top: 8vh; /* 稍微调高一点点 */
-            padding: 25px; /* 稍微缩小内边距，给文字更多空间 */
-            border-radius: 20px; 
-            
-            /* --- 核心修改：宽度优化 --- */
-            width: 100%;      /* 距离两边极近，保留 3% 的安全边距 */
-            max-width: 600px; /* 在平板上允许展示得更宽 */
-            
-            height: 62vh; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch; 
-            font-size: 1.2rem; /* 框大了，字也可以稍微大一点点 */
-            line-height: 1.8; color: #333; 
-            white-space: pre-wrap; word-break: break-word;
-            transition: opacity 0.2s ease; box-sizing: border-box;
+        .article-item a {
+            text-decoration: none;
+            color: #007aff;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
-        #box::-webkit-scrollbar { width: 0; background: transparent; }
-        .footer {
-            position: fixed; bottom: 0; left: 0; width: 100%; 
-            height: 18vh; display: flex; justify-content: center; 
-            align-items: center; pointer-events: none;
-        }
-        button { 
-            pointer-events: auto; border: none; background: #007aff; 
-            color: white; padding: 16px 60px; border-radius: 35px; 
-            font-weight: bold; font-size: 1.15rem; cursor: pointer; 
-            box-shadow: 0 8px 20px rgba(0,122,255,0.3);
-            -webkit-tap-highlight-color: transparent; 
-            transition: transform 0.1s;
-        }
-        button:active { transform: scale(0.92); opacity: 0.9; }
-        #debug-info { position: fixed; bottom: 10px; font-size: 9px; color: #ccc; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-
-    <div id="box">正在连接能量站...</div>
-
-    <div class="footer">
-        <button onclick="draw()">刷一个</button>
-    </div>
-
-    <div id="debug-info">SYSTEM v5.2 | WIDE MODE</div>
+    <h1>📚 文章列表</h1>
+    <ul id="article-list">加载中...</ul>
 
     <script>
-        let data = [];
-        const box = document.getElementById('box');
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('能量站管家就绪'))
-                    .catch(err => console.log('管家入职失败', err));
-            });
-        }
-
-        async function init() {
+        async function loadList() {
             try {
-                const getFullUrl = (fileName) => {
-                    const l = window.location;
-                    const path = l.pathname.substring(0, l.pathname.lastIndexOf('/') + 1);
-                    return l.origin + path + fileName + '?t=' + Date.now();
-                };
-
-                const jsonUrl = getFullUrl('data.json');
-                const response = await fetch(jsonUrl, { cache: "no-store" });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                data = await response.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    draw();
-                } else {
-                    box.innerText = "数据池为空，请检查 quotes 文件夹。";
-                }
-            } catch (err) {
-                box.innerHTML = `<span style="color:#ff3b30">连接失败</span><br><small>错误详情: ${err.message}</small>`;
+                const res = await fetch('./articles.json');
+                const articles = await res.json();
+                const listEl = document.getElementById('article-list');
+                listEl.innerHTML = '';
+                articles.forEach(article => {
+                    const li = document.createElement('li');
+                    li.className = 'article-item';
+                    li.innerHTML = `<a href="./article.html?slug=${article.slug}">${article.title}</a>`;
+                    listEl.appendChild(li);
+                });
+            } catch (e) {
+                document.getElementById('article-list').innerText = '加载失败: ' + e.message;
             }
         }
-
-        function draw() {
-            if (data.length === 0) return;
-            box.style.opacity = 0;
-            setTimeout(() => {
-                const randomIndex = Math.floor(Math.random() * data.length);
-                box.innerText = data[randomIndex];
-                box.scrollTop = 0;
-                box.style.opacity = 1;
-            }, 200);
-        }
-
-        init();
+        loadList();
     </script>
 </body>
 </html>
