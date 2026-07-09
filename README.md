@@ -1,75 +1,22 @@
-# web
+# ArticleWeb
 
+一个很轻的个人博客站点。
 
-build.py
+## 用法
 
-位于仓库根目录，把path目录下的所有 .md 变成网页能读的列表存到data.json。
-这里可以改为：1个.md一个句子列表，或识别一个.md中的一个句子(二级标题)作为一个句子列表，填到 data.json 
+把 Markdown 文章放进 `quotes/`（或新建 `posts/`），然后运行：
 
+```bash
+python build.py
+```
 
+脚本会生成：
 
+- `articles.json`：文章列表
+- `articles/*.json`：每篇文章的页面数据
 
-index.html
+首页是 `index.html`，文章页是 `article.html?slug=文章文件名`。
 
-抓取 (Fetch) 文件 data.json，将 JSON 字符串还原成一个数组，点击“刷一个”时程序运行 Math.random()随机产生一个索引数字X，
-最后通过 document.getElementById('box').innerText = data[X] 把文字塞进网页那个白色的方块里。
+## 发布
 
-
-
-
-
-manifest.json
-
-告诉手机浏览器：这个网页不仅仅是一个网站，它还可以像一个安装好的 App 一样运行。
-当你点击 Safari 的“添加到主屏幕”时，iOS 会读取这个文件来决定：
-图标 (Icons)：在手机桌面上显示的图标长什么样。
-名称 (Name)：图标下方的文字是什么（比如“能量站”）。
-启动界面 (Start URL)：点击图标后进入哪个页面。
-显示模式 (Display)：是像普通网页一样带地址栏，还是像真正的 App 一样全屏运行（隐藏地址栏）。
-主题颜色 (Theme Color)：手机状态栏（电量、时间那一栏）的颜色。
-隐藏地址栏：通过设置 "display": "standalone"，用户从桌面打开它时，顶部的网址栏和底部的工具栏都会消失，白框和按钮会占据整个屏幕，视觉效果非常专业。
-离线访问：配合 sw.js（Service Worker），即使手机没网，用户点开桌面图标依然能看到你之前加载过的句子。
-
-
-
-
-deploy.yml
-
-这个文件属于 GitHub Actions 功能。它的作用是：只要你下达了指令（比如上传了新的句子），它就会自动跳出来，帮你完成一系列复杂的体力活。
-监控：它时刻盯着你的 quotes 文件夹。
-触发：一旦发现 Commit（提交）了新内容，它立刻在 GitHub 的云端服务器上开一台“虚拟电脑”。
-运行脚本：它在这台虚拟电脑上安装 Python，运行你的 build.py。
-同步数据：它把运行出来的 data.json 自动塞回你的仓库。
-发布网页：最后，它把最新的代码推送到 GitHub Pages，让你手机打开网页就能看到新句子。
-on: push	触发条件：有人往仓库推代码了，开工！
-runs-on: ubuntu-latest	领工具：给这个任务分配一台 Linux 系统的虚拟电脑。
-uses: actions/checkout	下载代码：把你的仓库代码下载到这台虚拟电脑上。
-run: python build.py	干活：执行 Python 脚本，把 Markdown 转换成 JSON。
-git commit & push	交差：把生成好的 data.json 重新存回你的 GitHub。
-actions/deploy-pages	上线：把做好的网页正式发布到互联网上。
-如果 deploy.yml 里的某个步骤出错了（比如 Python 脚本报错、文件夹名字写错、或者你没有给它“写入权限”），GitHub 就会在 Actions 标签页显示一个红色的叉,这就意味着自动化中断了
-在GitHub 仓库顶部菜单栏，点击 Actions可以看到所有的运行记录
-
-
-sw.js
-
-Service Worker（服务工作线程）是 PWA（渐进式 Web 应用）技术的大脑，主要负责处理缓存、离线访问和资源推送。
-每当网页想要加载一个图片、一个 data.json 或者 index.html 时，这个管家都会先跳出来拦住请求：
-管家问：“这个东西我的私人仓库（Cache Storage）里有吗？”
-如果有：管家直接把仓库里的东西秒发给网页，甚至不需要联网。
-如果没有/需要更新：管家才会跑去互联网上下载，并顺手存一份在仓库里备用。
-当你第一次打开“能量站”后，sw.js 会把网页的壳子（HTML/CSS/JS）偷偷存起来。下次你在电梯里、地下室没信号时打开，它依然能秒开。
-因为它直接从手机本地读缓存，省去了网络传输时间，所以网页点开就像原生 App 一样快
-一个标准的管家要经历三个阶段：
-Install (安装)：第一次打开网页，管家入职，开始往仓库里搬运基础文件（index.html 等）。
-Activate (激活)：旧管家离职，新管家上岗，清理掉过时的旧仓库。
-Fetch (拦截/取货)：网页运行期间，管家随时待命，决定是从网络拿货还是从仓库拿货。
-
-
-联网时：网页每次都会尝试去 GitHub 拿最新的 data.json（因为有 ?t=... 时间戳和 sw.js 里的 fetch 优先策略）。
-断网时：如果你在没信号的地方点开，sw.js 会立刻从缓存仓库里把最后一次拿到的数据和网页壳子吐出来，保证你能照常使用。
-更新时：当你修改了样式或代码，只需要改一下 sw.js 里的 CACHE_NAME（比如改成 v5），用户下次打开时就会自动静默更新。
-
-
-TODO:
-更改py程序，一个二级标题作为一个文章或句子。
+仓库已配置 GitHub Pages 工作流，推送后会自动构建并发布。

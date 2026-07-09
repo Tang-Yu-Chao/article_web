@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>我的文章站</title>
-    <style>
-        body { margin: 20px; background: #f2f2f7; font-family: -apple-system, sans-serif; }
-        h1 { text-align: center; }
-        #article-list { list-style: none; padding: 0; }
-        .article-item {
-            background: white;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .article-item a {
-            text-decoration: none;
-            color: #007aff;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>个人博客</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
-<body>
-    <h1>📚 文章列表</h1>
-    <ul id="article-list">加载中...</ul>
+<body data-page="home">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./index.html">个人博客</a>
+      <span class="brand-subtitle">Markdown</span>
+      <div class="search-wrap">
+        <input id="searchInput" class="search-input" type="search" placeholder="搜索文章">
+      </div>
+    </div>
+  </header>
 
-    <script>
-        async function loadList() {
-            try {
-                const res = await fetch('./articles.json');
-                const articles = await res.json();
-                const listEl = document.getElementById('article-list');
-                listEl.innerHTML = '';
-                articles.forEach(article => {
-                    const li = document.createElement('li');
-                    li.className = 'article-item';
-                    li.innerHTML = `<a href="./article.html?slug=${article.slug}">${article.title}</a>`;
-                    listEl.appendChild(li);
-                });
-            } catch (e) {
-                document.getElementById('article-list').innerText = '加载失败: ' + e.message;
-            }
-        }
-        loadList();
-    </script>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">文章归档</div>
+        <div class="sidebar-subtitle" id="articleCount">0 篇</div>
+      </div>
+      <div id="sidebarContent"></div>
+    </aside>
+
+    <main class="content">
+      <div class="content-shell">
+        <section class="page-intro">
+          <p class="eyebrow">Markdown blog</p>
+          <h1>最新文章</h1>
+          <p class="lede">用 Markdown 写下想法，再把它们静静放到网页里。</p>
+        </section>
+
+        <section class="section" id="latest">
+          <h2>最近更新</h2>
+          <div id="recentPosts" class="feed"></div>
+        </section>
+
+        <section class="section" id="about">
+          <h2>关于</h2>
+          <p>这是一个很轻的静态个人博客，文章从 Markdown 构建而来，适合 GitHub Pages。</p>
+        </section>
+      </div>
+    </main>
+
+    <aside class="toc" id="toc">
+      <div class="toc-title">本页目录</div>
+      <nav id="pageToc"></nav>
+    </aside>
+  </div>
+
+  <script defer src="./site.js"></script>
 </body>
 </html>

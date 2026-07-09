@@ -2,12 +2,15 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'quotes/**'
-      - 'build.py'
-      - 'index.html'
-      - 'article.html'
+      - "posts/**"
+      - "quotes/**"
+      - "build.py"
+      - "index.html"
+      - "article.html"
+      - "style.css"
+      - "site.js"
 
 permissions:
   contents: write
@@ -18,7 +21,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # 构建任务：生成静态文件
   build:
     runs-on: ubuntu-latest
     steps:
@@ -27,25 +29,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
-      - name: Run Build Script
+      - name: Build site data
         run: python build.py
 
       - name: Commit generated files
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add articles.json articles/   # 注意：现在生成的是 articles.json 和 articles/ 文件夹
-          git commit -m "自动生成文章数据" || echo "内容无变化"
+          git add articles.json articles/
+          git commit -m "Build blog data" || echo "No generated changes"
           git push
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'   # 根目录包含 index.html、article.html、articles.json 等
+          path: "."
 
-  # 部署任务：部署到 GitHub Pages
   deploy:
     needs: build
     runs-on: ubuntu-latest

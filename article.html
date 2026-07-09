@@ -1,98 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章详情</title>
-    <style>
-        body {
-            margin: 12px;
-            background: #f2f2f7;
-            font-family: -apple-system, sans-serif;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        #article-content {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            line-height: 1.8;
-            font-size: 16px;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-bottom: 30px;
-        }
-        .giscus { margin-top: 30px; }
-        @media (max-width: 480px) {
-            body {
-                margin: 8px;
-            }
-            #article-content {
-                padding: 16px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>个人博客</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
-<body>
-    <a href="./index.html">← 返回首页</a>
-    <h1 id="article-title"></h1>
-    <div id="article-content"></div>
-
-    <!-- Giscus 评论组件 -->
-    <div class="giscus">
-        <script src="https://giscus.app/client.js"
-                data-repo="Tang-Yu-Chao/ArticleWeb"
-                data-repo-id="R_kgDORwZlxQ"
-                data-category="Announcements"
-                data-category-id="DIC_kwDORwZlxc4C6eJI"
-                data-mapping="pathname"
-                data-strict="1"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="top"
-                data-theme="preferred_color_scheme"
-                data-lang="zh-CN"
-                crossorigin="anonymous"
-                async>
-        </script>
+<body data-page="article">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./index.html">个人博客</a>
+      <span class="brand-subtitle">Markdown</span>
+      <div class="search-wrap">
+        <input id="searchInput" class="search-input" type="search" placeholder="搜索文章">
+      </div>
     </div>
+  </header>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const slug = params.get('slug');
-        if (!slug) {
-            document.body.innerHTML = '<h2>缺少文章标识</h2>';
-            throw new Error('No slug');
-        }
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">文章归档</div>
+        <div class="sidebar-subtitle" id="articleCount">0 篇</div>
+      </div>
+      <div id="sidebarContent"></div>
+    </aside>
 
-        async function loadArticle() {
-            try {
-                const res = await fetch(`./articles/${slug}.json`);
-                const article = await res.json();
-                document.getElementById('article-title').innerText = article.title;
-                document.getElementById('article-content').innerText = article.content;
+    <main class="content">
+      <div class="content-shell">
+        <article class="article-shell">
+          <p class="eyebrow">文章</p>
+          <h1 id="articleTitle" class="article-title"></h1>
+          <div class="article-meta" id="articleMeta"></div>
+          <p class="article-summary" id="articleSummary" hidden></p>
+          <div id="articleBody" class="article-body"></div>
+        </article>
+      </div>
+    </main>
 
-                // 动态更新 Giscus 的 data-term 并重新加载
-                const giscusScript = document.querySelector('script[src*="giscus.app"]');
-                if (giscusScript) {
-                    // 设置映射方式为 "specific"，term 为文章标题（确保唯一）
-                    giscusScript.setAttribute('data-mapping', 'specific');
-                    giscusScript.setAttribute('data-term', article.title);
-                    giscusScript.setAttribute('data-strict', '1');
+    <aside class="toc" id="toc">
+      <div class="toc-title">本页目录</div>
+      <nav id="pageToc"></nav>
+    </aside>
+  </div>
 
-                    // 重新加载 Giscus 脚本
-                    const newScript = document.createElement('script');
-                    for (let attr of giscusScript.attributes) {
-                        newScript.setAttribute(attr.name, attr.value);
-                    }
-                    giscusScript.replaceWith(newScript);
-                }
-            } catch (e) {
-                document.getElementById('article-content').innerText = '加载文章失败: ' + e.message;
-            }
-        }
-        loadArticle();
-    </script>
+  <script defer src="./site.js"></script>
 </body>
 </html>
